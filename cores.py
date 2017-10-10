@@ -53,9 +53,6 @@ class Cores(object):
         except IOError:
             print(red('!')+ 'Check your Internet connection')
 
-    def poll_url(self):
-        response = requests.self.method
-
     def get_internal_address(self):
         """use socket to try to connect to 8.8.8.8 on tcp/53, return getsockname as internal_ip"""
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -228,7 +225,6 @@ def main():
     runcores.dir_check()
     runcores.get_external_address()
     runcores.get_internal_address()
-    runcores.poll_url()
     runcores.cors_js_template()
     runcores.html_template()
 
