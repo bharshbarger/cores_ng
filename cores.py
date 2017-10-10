@@ -28,7 +28,7 @@ class Cores(object):
         self.url = url
         self.access_control = access_control
         self.log_style = log_style
-        self.method = method
+        self.method = ''.join(method)
         self.port = port
         self.Version = Version
         self.Contributors = Contributors
