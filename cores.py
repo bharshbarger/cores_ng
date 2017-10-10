@@ -182,7 +182,7 @@ def main():
     """main function handles argument processing and sigint handling"""
 
     # App info
-    App = '{:<20}C.O.R.E.S.'
+    App = 'C.O.R.E.S.'
     Version = 'v1.10092017'
     Author = 'Nick Sanzotta/@Beamr'
     Contributors = 'Bill Harshbarger'
