@@ -31,7 +31,11 @@ class Cores(object):
         self.headers = ''.join(headers)
         self.header_key = self.headers.split(':')[0]
         self.header_val = self.headers.split(':')[1]
-        self.json_payload = ''.join(json_payload)
+        
+        if json_payload is None:
+            self.json_payload = None
+        else:
+            self.json_payload = ''.join(json_payload)
 
         print('\n******************\n\nC.O.R.E.S.: Cross Origin Resource Exploitation Server\n')
 
