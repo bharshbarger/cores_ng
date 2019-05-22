@@ -14,7 +14,6 @@ import socket
 import socketserver
 import webbrowser
 
-
 class Cores(object):
     """cores object"""
 
@@ -38,11 +37,8 @@ class Cores(object):
             self.json_payload = ''.join(json_payload)
 
         print('\n******************\n\nC.O.R.E.S.: Cross Origin Resource Exploitation Server\n')
-
         print('See https://en.wikipedia.org/wiki/Cross-origin_resource_sharing\n')
-
         print('\n\nURL : {}\n\nMETHOD : {}\n\nHEADER_KEY :{}\n\nHEADER_VAL : {}\n\nPAYLOAD : {}\n\n'.format(self.url, self.method, self.header_key, self.header_val, self.json_payload))
-
 
     def dir_check(self):
         ''' If specified directory does not exist then create specified directory '''
@@ -134,7 +130,6 @@ C.O.R.E.S.<br>
             f.write(html_template)
         return html_template
 
-
     def append_refresh(self):
         foo=None
 
@@ -148,7 +143,6 @@ C.O.R.E.S.<br>
 
 def main():
     """main function handles argument processing and sigint handling"""
-
     parser = argparse.ArgumentParser()
     parser.add_argument('-a', '--autolaunch_browser', \
         help='Auto launches a browser', \
@@ -182,12 +176,9 @@ def main():
     runcores.html_template()
     if args.autolaunch_browser is True:
         runcores.browser_launch()
-  
 
     #start the CORES server
     runcores.server_start()
-
-
 
 if __name__ == '__main__':
     main()
