@@ -24,13 +24,23 @@
 
 	
 # Usage:
-	usage: cores_ng.py <URL> <OPTIONS>
-		Example: python cores.py https://site.com/
-		Example: python cores.py https://site.com/ -m POST -p 8080 -j <json string> -d <auth heaDer>
+	usage: cores_ng.py [-h] [-a] [-l PAYLOAD] -m get, post, etc. [-p 8080]
+			   [-r RQHDR] -u http://foo.com [-v]
 
-		 [-m, Define HTTP request method ex: -m POST]
-		 [-p, Define HTTP Server port ex: -p 8080]
-		 [-a, Auto-launches default browser to automatically visit CORES server.]
-
-
-
+	optional arguments:
+	  -h, --help            show this help message and exit
+	  -a, --autolaunch_browser
+				Auto launches a browser
+	  -l PAYLOAD, --payload PAYLOAD
+				payload to POST
+	  -m get, post, etc., --method get, post, etc.
+				Define HTTP request method ex: -m post
+	  -p 8080, --port 8080  Port to start local HTTP server on. Default is 8080
+	  -r RQHDR, --rqhdr RQHDR
+				Specify optional header(s) for authentication, JWT,
+				i.e. Authorization: Bearer eyJhbGciOiJSUz... yadda
+				yadda
+	  -u http://foo.com, --url http://foo.com
+				Define vulnerable CORS targert URL ex:
+				https://site.com/
+	  -v, --verbose         Enable verbosity
