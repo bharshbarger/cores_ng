@@ -1,6 +1,6 @@
 # C.O.R.E.S. ![Supported Python versions](https://img.shields.io/badge/python-3.7-blue.svg)
     Description:Cross-Origin Resource Exploitation Server.
-    Created by: Nick Sanzotta/@Beamr
+    Created by: Nick Sanzotta/@Beamr https://github.com/NickSanzotta/CORES
     
     This tool 'cores_ng.py' will launch a Python http.server configured with 
     HTML & JavaScript code to execute a CORS Proof of Concept (PoC) vulnerability.
